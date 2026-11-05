@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Workout Plans{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-dumbbell me-2 text-secondary"></i>Workout / Diet Plans
+        </h3>
+        <div class="text-muted small">Create, view and manage personalized workout or diet instructions for members.</div>
+    </div>
+
+    <a href="{% url 'admin_workout_plan_add' %}" class="btn btn-dark" style="border-radius:14px;">
+        <i class="fa-solid fa-plus me-2"></i>Add Workout / Diet Plan
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-3" style="border-radius:18px;">
+    <div class="card-body p-3 p-md-4">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-md-8">
+                <label class="form-label fw-semibold">Member</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="fa-solid fa-user text-secondary"></i>
+                    </span>
+                    <select name="member" class="form-select">
+                        <option value="">All Members</option>
+                        {% for m in members %}
+                            <option value="{{ m.id }}" {% if selected_member == m.id %}selected{% endif %}>
+                                {{ m.full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <button class="btn btn-outline-secondary w-100" style="border-radius:14px;">
+                    <i class="fa-solid fa-filter me-2"></i>Filter
+                </button>
+
+                {% if selected_member %}
+                    <a href="{% url 'admin_workout_plans_list' %}"
+                       class="btn btn-outline-dark w-100 mt-2" style="border-radius:14px;">
+                        <i class="fa-solid fa-rotate-left me-2"></i>Reset
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for wp in plans %}
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden;">
+                <div class="card-header d-flex justify-content-between align-items-start gap-2"
+                     style="background: rgba(15,23,42,.98); color:#fff;">
+                    <div>
+                        <div class="fw-bold">
+                            <i class="fa-solid fa-file-lines me-2"></i>{{ wp.title }}
+                        </div>
+                        <div class="small opacity-75">
+                            <i class="fa-regular fa-calendar me-1"></i>{{ wp.created_at|date:"d M Y" }}
+                            <span class="ms-2"><i class="fa-regular fa-clock me-1"></i>{{ wp.created_at|date:"H:i" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <div class="badge text-bg-light border">
+                            <i class="fa-solid fa-user me-1 text-secondary"></i>{{ wp.member.full_name }}
+                        </div>
+                        <div class="small opacity-75 mt-1">
+                            <i class="fa-solid fa-id-badge me-1"></i>{{ wp.member.user.username }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    {% if wp.description %}
+                        <div class="small text-muted mb-2">
+                            <i class="fa-solid fa-circle-info me-1 text-secondary"></i>
+                            Plan details (preview)
+                        </div>
+
+                        <!-- Preview (clamped) -->
+                        <div style="
+                            white-space:pre-line;
+                            display:-webkit-box;
+                            -webkit-line-clamp:6;
+                            -webkit-box-orient:vertical;
+                            overflow:hidden;
+                        " class="mb-3">
+                            {{ wp.description }}
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <!-- View Full Modal Button -->
+                            <button type="button" class="btn btn-sm btn-outline-dark"
+                                    style="border-radius:12px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#wpModal{{ wp.id }}">
+                                <i class="fa-solid fa-eye me-1"></i>View Full
+                            </button>
+
+                            <!-- Delete -->
+                            <form method="post" action="{% url 'admin_workout_plan_delete' wp.id %}"
+                                  onsubmit="return confirm('Delete this workout plan?');" class="ms-auto">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger" style="border-radius:12px;">
+                                    <i class="fa-solid fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="text-muted">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i>No description provided.
+                        </div>
+
+                        <form method="post" action="{% url 'admin_workout_plan_delete' wp.id %}"
+                              onsubmit="return confirm('Delete this workout plan?');" class="mt-3">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger" style="border-radius:12px;">
+                                <i class="fa-solid fa-trash me-1"></i>Delete
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: View Full Plan -->
+        <div class="modal fade" id="wpModal{{ wp.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content" style="border-radius:18px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">
+                            <i class="fa-solid fa-dumbbell me-2 text-secondary"></i>{{ wp.title }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                            <div class="text-muted small">
+                                <i class="fa-solid fa-user me-1"></i>{{ wp.member.full_name }}
+                                <span class="ms-2"><i class="fa-solid fa-id-badge me-1"></i>{{ wp.member.user.username }}</span>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="fa-regular fa-calendar me-1"></i>{{ wp.created_at|date:"d M Y" }}
+                                <span class="ms-2"><i class="fa-regular fa-clock me-1"></i>{{ wp.created_at|date:"H:i" }}</span>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                        <div style="white-space:pre-line;">{{ wp.description }}</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" style="border-radius:14px;"
+                                data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark me-2"></i>Close
+                        </button>
+
+                        <form method="post" action="{% url 'admin_workout_plan_delete' wp.id %}"
+                              onsubmit="return confirm('Delete this workout plan?');">
+                            {% csrf_token %}
+                            <button class="btn btn-danger" style="border-radius:14px;">
+                                <i class="fa-solid fa-trash me-2"></i>Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% empty %}
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius:18px;">
+                <div class="card-body text-center py-5">
+                    <div class="text-muted">
+                        <i class="fa-solid fa-clipboard-list fa-2x mb-2"></i>
+                        <div class="fw-semibold">No workout plans found</div>
+                        <div class="small">Click “Add Workout / Diet Plan” to create the first plan.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

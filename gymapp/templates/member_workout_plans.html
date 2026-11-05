@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}My Workout Plans{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h3 class="mb-0 fw-bold">
+            <i class="fa-solid fa-dumbbell me-2 text-secondary"></i>My Workout / Diet Plans
+        </h3>
+        <div class="text-muted small">Workout and diet instructions assigned to you by the gym trainer/admin.</div>
+    </div>
+</div>
+
+{% if plans %}
+    <div class="row g-3">
+        {% for wp in plans %}
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden;">
+                    <div class="card-header d-flex justify-content-between align-items-start gap-2"
+                         style="background: rgba(15,23,42,.98); color:#fff;">
+                        <div class="fw-bold">
+                            <i class="fa-solid fa-file-lines me-2"></i>{{ wp.title }}
+                        </div>
+                        <span class="badge text-bg-light border">
+                            <i class="fa-regular fa-calendar me-1 text-secondary"></i>{{ wp.created_at|date:"d M Y" }}
+                        </span>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="small text-muted mb-2">
+                            <i class="fa-regular fa-clock me-1 text-secondary"></i>
+                            Created at: {{ wp.created_at|date:"d M Y H:i" }}
+                        </div>
+
+                        <!-- Preview (clamped) -->
+                        <div style="
+                            white-space:pre-line;
+                            display:-webkit-box;
+                            -webkit-line-clamp:7;
+                            -webkit-box-orient:vertical;
+                            overflow:hidden;
+                        " class="mb-3">
+                            {{ wp.description }}
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-dark"
+                                    style="border-radius:12px;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#memberWpModal{{ wp.id }}">
+                                <i class="fa-solid fa-eye me-1"></i>View Full
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal: View Full Plan -->
+            <div class="modal fade" id="memberWpModal{{ wp.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" style="border-radius:18px;">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold">
+                                <i class="fa-solid fa-dumbbell me-2 text-secondary"></i>{{ wp.title }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="text-muted small mb-2">
+                                <i class="fa-regular fa-calendar me-1"></i>{{ wp.created_at|date:"d M Y" }}
+                                <span class="ms-2"><i class="fa-regular fa-clock me-1"></i>{{ wp.created_at|date:"H:i" }}</span>
+                            </div>
+                            <hr class="my-2">
+                            <div style="white-space:pre-line;">{{ wp.description }}</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:14px;"
+                                    data-bs-dismiss="modal">
+                                <i class="fa-solid fa-xmark me-2"></i>Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card border-0 shadow-sm" style="border-radius:18px;">
+        <div class="card-body text-center py-5">
+            <div class="text-muted">
+                <i class="fa-solid fa-clipboard-list fa-2x mb-2"></i>
+                <div class="fw-semibold">No workout / diet plans assigned yet</div>
+                <div class="small">Once admin assigns a plan, it will appear here.</div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}

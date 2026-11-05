@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-3">Edit My Profile</h2>
+
+
+
+<form method="post" class="row g-3 w-75">
+    {% csrf_token %}
+    <div class="col-md-6">
+        <label for="full_name" class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="full_name" name="full_name" value="{{ member.full_name }}">
+    </div>
+    <div class="col-md-6">
+        <label for="mobile" class="form-label">Phone</label>
+        <input type="text" class="form-control" id="mobile" name="mobile" value="{{ member.mobile }}">
+    </div>
+    <div class="col-md-3">
+        <label for="age" class="form-label">Age</label>
+        <input type="number" class="form-control" id="age" name="age" value="{{ member.age }}">
+    </div>
+    <div class="col-md-3">
+        <label for="gender" class="form-label">Gender</label>
+        <select class="form-select" id="gender" name="gender">
+            <option value="MALE" {% if member.gender == "MALE" %}selected{% endif %}>Male</option>
+            <option value="FEMALE" {% if member.gender == "FEMALE" %}selected{% endif %}>Female</option>
+            <option value="OTHER" {% if member.gender == "OTHER" %}selected{% endif %}>Other</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <label for="address" class="form-label">Address</label>
+        <textarea class="form-control" id="address" name="address" rows="3">{{ member.address }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Profile</button>
+</form>
+
+{% endblock %}
